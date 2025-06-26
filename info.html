@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Column for Overlay Explanation -->
+    <div class="col-md-6">
+      <div class="card p-3">
+        <h4>🧠 What Does the Overlay Show?</h4>
+        <p>
+          The overlay image highlights areas predicted as flooded in red. These regions are identified by a UNet deep learning model trained on flood segmentation data.
+        </p>
+        <p>
+          This helps emergency teams and communities visualize impacted zones quickly and accurately.
+        </p>
+      </div>
+    </div>
+
+    <!-- Column for Contact Information -->
+    <div class="col-md-6">
+      <div class="card p-3 bg-light">
+        <h4>📞 Contact Information</h4>
+        <p>If you need assistance or have any questions, feel free to reach out to us:</p>
+
+        <h5>National Disaster Management Agencies (NDMA)</h5>
+        <p>Name: SAKTHYNII</p>
+
+        <h5>Emergency Helpline</h5>
+        <p>Phone: 014-9325314</p>
+
+        <h5>General Contact</h5>
+        <p>Email: <a href="mailto:support@floodpredictor.com">support@floodpredictor.com</a></p>
+
+        <h5>Follow Us on Social Media</h5>
+        <ul>
+          <li><a href="https://facebook.com/floodpredictor" target="_blank">Facebook</a></li>
+          <li><a href="https://twitter.com/floodpredictor" target="_blank">Twitter</a></li>
+          <li><a href="https://instagram.com/floodpredictor" target="_blank">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flood Safety Tips Section -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card p-3">
+        <h4>🛑 Flood Safety Tips</h4>
+        <p>In case of flooding, always prioritize your safety. Here's how you can protect yourself:</p>
+        <ul>
+          <li>Move to higher ground immediately</li>
+          <li>Stay away from electrical sources and floodwaters</li>
+          <li>Do not walk or drive through floodwaters</li>
+          <li>Prepare an emergency kit with essentials such as food, water, medications, and documents</li>
+          <li>Listen to local authorities for flood warnings and evacuation instructions</li>
+          <li>Ensure your home is protected with flood barriers or sandbags, if possible</li>
+          <li>If you are trapped in a vehicle by floodwaters, stay in the vehicle and call for help</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

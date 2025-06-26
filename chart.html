@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  <h3><i class="fas fa-chart-line"></i> Flood Prediction History</h3>
+  <p class="text-muted">Click a point in the graph to view full details of each prediction.</p>
+
+  <div class="card shadow p-4">
+    <canvas id="floodChart" height="300"></canvas>
+  </div>
+
+  <!-- Draggable Popup -->
+  <div id="customPopup" style="
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    background: #fef7f1;
+    border: 2px solid #ff9800;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 300px;
+    font-family: sans-serif;
+    cursor: move;">
+    <h5 id="popupTitle" style="color: #e65100; margin-top: 0;"></h5>
+    <div id="popupContent"></div>
+    <button onclick="closePopup()" style="
+      margin-top: 10px;
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;">Close</button>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const labels = {{ labels | tojson }};
+  const dataPoints = {{ history | tojson }};
+  const details = {{ details | tojson }};
+
+  const ctx = document.getElementById("floodChart").getContext("2d");
+
+  const floodChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Flood %",
+        data: dataPoints,
+        borderColor: "#007bff",
+        backgroundColor: "rgba(0,123,255,0.1)",
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: dataPoints.map(val => val > 20 ? 'red' : '#007bff'),
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `Flood: ${ctx.parsed.y}%`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Flood Percentage'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Prediction'
+          }
+        }
+      }
+    }
+  });
+
+  // Show popup on click
+  floodChart.canvas.onclick = function(event) {
+    const elements = floodChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+    if (elements.length > 0) {
+      const index = elements[0].index;
+      const info = details[index];
+
+      document.getElementById("popupTitle").textContent = `📊 Prediction ${index + 1}`;
+      document.getElementById("popupContent").innerHTML = `
+        <p><strong>📁 Filename:</strong> ${info.filename}</p>
+        <p><strong>💧 Flood Percentage:</strong> ${info.flood_percent}%</p>
+        <p><strong>🕒 Timestamp:</strong> ${info.timestamp}</p>
+      `;
+
+      const popup = document.getElementById("customPopup");
+      popup.style.display = "block";
+      popup.style.left = `${event.clientX + 20}px`;
+      popup.style.top = `${event.clientY}px`;
+    }
+  };
+
+  function closePopup() {
+    document.getElementById("customPopup").style.display = "none";
+  }
+
+  // Make popup draggable
+  const popup = document.getElementById("customPopup");
+  let offsetX, offsetY, isDragging = false;
+
+  popup.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    offsetX = e.clientX - popup.getBoundingClientRect().left;
+    offsetY = e.clientY - popup.getBoundingClientRect().top;
+    document.addEventListener('mousemove', dragPopup);
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      document.removeEventListener('mousemove', dragPopup);
+    });
+  });
+
+  function dragPopup(e) {
+    if (!isDragging) return;
+    popup.style.left = `${e.clientX - offsetX}px`;
+    popup.style.top = `${e.clientY - offsetY}px`;
+  }
+</script>
+{% endblock %}

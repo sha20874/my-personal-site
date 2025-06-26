@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  <h3>🕒 Upload History</h3>
+
+  {% if uploads %}
+  <table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th>#</th>
+        <th>Filename</th>
+        <th>Flood %</th>
+        <th>Timestamp</th>
+        <th>Preview</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in uploads %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ entry.filename }}</td>
+        <td>{{ entry.flood_percent }}%</td>
+        <td>{{ entry.timestamp }}</td>
+        <td>
+          <a href="{{ url_for('static', filename='uploads/' ~ entry.filename ~ '_original.png') }}" target="_blank">Original</a> |
+          <a href="{{ url_for('static', filename='uploads/' ~ entry.filename ~ '_mask.png') }}" target="_blank">Mask</a> |
+          <a href="{{ url_for('static', filename='uploads/' ~ entry.filename ~ '_overlay.png') }}" target="_blank">Overlay</a>
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('delete_upload', filename=entry.filename) }}" onsubmit="return confirm('Delete this entry?')">
+            <button class="btn btn-danger btn-sm" type="submit"><i class="fas fa-trash"></i> Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No uploads yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

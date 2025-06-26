@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h3>🌦 Current Weather in Perlis</h3>
+  <div class="card p-3">
+    <div id="weatherDisplay">Loading weather data...</div>
+  </div>
+
+  <h4>Weather History (Last 7 Days)</h4>
+  <div class="card p-3">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Temperature</th>
+          <th>Humidity</th>
+          <th>Wind Speed</th>
+          <th>Conditions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for weather in weather_history %}
+        <tr>
+          <td>{{ weather.date }}</td>
+          <td>{{ weather.temperature }}°C</td>
+          <td>{{ weather.humidity }}%</td>
+          <td>{{ weather.wind_speed }} m/s</td>
+          <td>{{ weather.description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+fetch("https://api.openweathermap.org/data/2.5/weather?q=Perlis&appid=4257a2de4d308adc1bc73af584db4f51&units=metric")
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("weatherDisplay").innerHTML = `
+      <strong>${data.name}</strong><br>
+      ${data.weather[0].main} - ${data.weather[0].description}<br>
+      Temp: ${data.main.temp}°C<br>
+      Humidity: ${data.main.humidity}%<br>
+      Wind: ${data.wind.speed} m/s
+    `;
+  })
+  .catch(err => {
+    document.getElementById("weatherDisplay").innerText = "Failed to load weather.";
+  });
+</script>
+
+{% endblock %}
+

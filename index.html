@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flood Detection Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/dist/css/adminlte.min.css') }}">
+  <style>
+    body {
+      background: #f4f6f9;
+    }
+    .card-custom {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    img.result-img {
+      border-radius: 10px;
+      border: 2px solid #eee;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    .nav-sidebar .nav-link.active {
+      background-color: #007bff !important;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-light bg-white">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
+      <li class="nav-item d-none d-sm-inline-block"><a href="#" class="nav-link font-weight-bold">🌊 Flood Detection Dashboard</a></li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="#" class="brand-link text-center">
+      <span class="brand-text font-weight-light">🚨 Flood Project</span>
+    </a>
+    <div class="sidebar">
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column">
+          <li class="nav-item">
+            <a href="#upload" class="nav-link active">
+              <i class="nav-icon fas fa-upload"></i>
+              <p>Upload</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#chart" class="nav-link">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>Flood Chart</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#weather" class="nav-link">
+              <i class="nav-icon fas fa-cloud-sun"></i>
+              <p>Weather</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#explanation" class="nav-link">
+              <i class="nav-icon fas fa-brain"></i>
+              <p>Explanation</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#tips" class="nav-link">
+              <i class="nav-icon fas fa-exclamation-triangle"></i>
+              <p>Precautions</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+
+        <!-- Upload Form -->
+        <div id="upload" class="card card-custom p-3">
+          <form method="POST" enctype="multipart/form-data">
+            <label><strong>Select Flood Image:</strong></label>
+            <div class="input-group">
+              <input type="file" name="image" class="form-control" required>
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">
+                  <i class="fas fa-magic"></i> Upload & Predict
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {% if original %}
+        <!-- Image Results -->
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card card-custom">
+              <div class="card-header bg-info text-white">Original</div>
+              <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='uploads/' ~ original) }}" class="img-fluid result-img">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom">
+              <div class="card-header bg-dark text-white">Predicted Mask</div>
+              <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='uploads/' ~ mask) }}" class="img-fluid result-img">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-custom">
+              <div class="card-header bg-danger text-white">Overlay</div>
+              <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='uploads/' ~ overlay) }}" class="img-fluid result-img">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart & Weather -->
+        <div class="row">
+          <div id="chart" class="col-md-6">
+            <div class="card card-custom">
+              <div class="card-header bg-primary text-white">Flood Coverage Chart</div>
+              <div class="card-body">
+                <canvas id="floodChart" style="max-height: 250px;"></canvas>
+              </div>
+            </div>
+          </div>
+          <div id="weather" class="col-md-6">
+            <div class="card card-custom">
+              <div class="card-header bg-success text-white">Current Weather (Perlis)</div>
+              <div class="card-body">
+                <div id="weatherDisplay">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explanation & Tips -->
+        <div class="row">
+          <div id="explanation" class="col-md-6">
+            <div class="card card-custom">
+              <div class="card-header bg-warning"><i class="fas fa-brain"></i> Overlay Explanation</div>
+              <div class="card-body">
+                Red areas show zones where flooding was detected using deep learning image segmentation.
+              </div>
+            </div>
+          </div>
+          <div id="tips" class="col-md-6">
+            <div class="card card-custom">
+              <div class="card-header bg-danger text-white"><i class="fas fa-exclamation-triangle"></i> Flood Safety Precautions</div>
+              <div class="card-body">
+                <ul>
+                  <li>Avoid walking or driving through floodwater.</li>
+                  <li>Turn off electricity & gas before evacuating.</li>
+                  <li>Keep emergency supplies ready.</li>
+                  <li>Follow official weather alerts.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <footer class="main-footer text-center">
+    <strong>© 2025 Flood Detection AI | Built with ❤️ using Flask + AdminLTE</strong>
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='adminlte/plugins/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='adminlte/dist/js/adminlte.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('floodChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Flooded %', 'Dry %'],
+        datasets: [{
+          data: [{{ flooded_percent | default(40) }}, {{ 100 - flooded_percent | default(60) }}],
+          backgroundColor: ['#dc3545', '#28a745']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  fetch("https://api.openweathermap.org/data/2.5/weather?q=Perlis&appid=4257a2de4d308adc1bc73af584db4f51&units=metric")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("weatherDisplay").innerHTML =
+        `<strong>${data.name}</strong><br>${data.weather[0].description}<br>Temp: ${data.main.temp}°C | Humidity: ${data.main.humidity}%`;
+    })
+    .catch(err => {
+      document.getElementById("weatherDisplay").innerText = "Weather unavailable.";
+    });
+</script>
+</body>
+</html>
